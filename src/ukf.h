@@ -74,6 +74,26 @@ public:
   ///* the current NIS for laser
   double NIS_laser_;
 
+  // Set measurement dimension, radar can measure r, phi, and r_dot
+  int n_z_;
+
+  // Set measurement dimension, lidar
+  int n_z_lidar;
+
+  VectorXd weights;
+
+  ///* predicted sigma points matrix
+  MatrixXd Xsig_aug_;
+
+  // Augmented mean vector
+  VectorXd x_aug;
+
+  // Sensor Noise
+  MatrixXd R_laser_;
+  MatrixXd R_radar_;
+
+  double previous_timestamp_;
+
   /**
    * Constructor
    */
@@ -108,6 +128,10 @@ public:
    * @param meas_package The measurement at k+1
    */
   void UpdateRadar(MeasurementPackage meas_package);
+
+  void PredictMeanAndCovariance();
+  void AugmentedSigmaPoints();
+  void PredictAugmentedSigmaPoints(double delta_t);
 };
 
 #endif /* UKF_H */
