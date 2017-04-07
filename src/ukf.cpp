@@ -167,10 +167,10 @@ void UKF::Prediction(double delta_t) {
   Estimate the object's location. Modify the state
   vector, x_. Predict sigma points, the state, and the state covariance matrix.
   */
-  // Generate augmented sigma points matrix Xsig_aug_
+  // Generate augmented sigma points Xsig_aug_
   GenerateAugmentedSigmaPoints();
 
-  // Predict the future Xsig_pred
+  // Predict the future Xsig_pred_
   PredictAugmentedSigmaPoints(delta_t);
 
   // Predict mean and covariance
@@ -290,14 +290,14 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
   VectorXd z_pred = VectorXd(n_z_);
 
   for (int i = 0; i < 2 * n_aug_ + 1; i++) {
-    // extract values for better readibility
+
     double p_x = Xsig_pred_(0,i);
     double p_y = Xsig_pred_(1,i);
     double vel  = Xsig_pred_(2,i);
     double yaw = Xsig_pred_(3,i);
 
-    double v1 = cos(yaw)*vel;
-    double v2 = sin(yaw)*vel;
+    double v_x = cos(yaw) * vel;
+    double v_y = sin(yaw) * vel;
 
     // measurement model
     // R
@@ -307,10 +307,10 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
     Zsig(1,i) = atan2(p_y,p_x);
 
     // Check division by zero for r_dot
-    if (Zsig(0, i) < 0.001) {
-      Zsig(2, i) = (p_x * v1 + p_y * v2) / 0.001;
+    if (Zsig(0, i) < 0.0001) {
+      Zsig(2, i) = (p_x * v_x + p_y * v_y) / 0.0001;
     } else {
-      Zsig(2, i) = (p_x * v1 + p_y * v2) / Zsig(0, i);
+      Zsig(2, i) = (p_x * v_x + p_y * v_y) / Zsig(0, i);
     }
   }
 
@@ -413,36 +413,36 @@ void UKF::PredictAugmentedSigmaPoints(double dt){
     double v = Xsig_aug_(2, i);
     double yaw = Xsig_aug_(3, i);
     double yawd = Xsig_aug_(4, i);
-    double nu_a = Xsig_aug_(5, i);
-    double nu_yawdd = Xsig_aug_(6, i);
+    double a_ = Xsig_aug_(5, i);
+    double yawdd_n = Xsig_aug_(6, i);
 
     //predicted state values
-    double px_p, py_p;
+    double pred_px, pred_py;
 
     // check division by zero
-    if (fabs(yawd) > 0.001) {
-      px_p = p_x + v / yawd * (sin(yaw + yawd * dt) - sin(yaw));
-      py_p = p_y + v / yawd * (cos(yaw) - cos(yaw + yawd * dt));
+    if (fabs(yawd) > 0.0001) {
+      pred_px = p_x + v / yawd * (sin(yaw + yawd * dt) - sin(yaw));
+      pred_py = p_y + v / yawd * (cos(yaw) - cos(yaw + yawd * dt));
     } else {
-      px_p = p_x + v * dt * cos(yaw);
-      py_p = p_y + v * dt * sin(yaw);
+      pred_px = p_x + v * dt * cos(yaw);
+      pred_py = p_y + v * dt * sin(yaw);
     }
 
-    double v_p = v;
+    double pred_v = v;
     double yaw_p = yaw + yawd * dt;
     double yawd_p = yawd;
 
     //add noise
-    px_p = px_p + 0.5 * nu_a * dt * dt * cos(yaw);
-    py_p = py_p + 0.5 * nu_a * dt * dt * sin(yaw);
-    v_p = v_p + nu_a * dt;
+    pred_px = pred_px + 0.5 * a_ * dt * dt * cos(yaw);
+    pred_py = pred_py + 0.5 * a_ * dt * dt * sin(yaw);
+    pred_v = pred_v + a_ * dt;
 
-    yaw_p = yaw_p + 0.5 * nu_yawdd * dt * dt;
-    yawd_p = yawd_p + nu_yawdd * dt;
+    yaw_p = yaw_p + 0.5 * yawdd_n * dt * dt;
+    yawd_p = yawd_p + yawdd_n * dt;
 
-    Xsig_pred_(0, i) = px_p;
-    Xsig_pred_(1, i) = py_p;
-    Xsig_pred_(2, i) = v_p;
+    Xsig_pred_(0, i) = pred_px;
+    Xsig_pred_(1, i) = pred_py;
+    Xsig_pred_(2, i) = pred_v;
     Xsig_pred_(3, i) = yaw_p;
     Xsig_pred_(4, i) = yawd_p;
   }
@@ -471,8 +471,8 @@ void UKF::PredictMeanAndCovariance(){
     VectorXd x_diff = Xsig_pred_.col(i) - x_;
 
     // normalize angle
-    while (x_diff(3) > M_PI) x_diff(3) -= 2. * M_PI;
-    while (x_diff(3) <- M_PI) x_diff(3) += 2.* M_PI;
+    while (x_diff(3) > M_PI) x_diff(3) -= 2.*M_PI;
+    while (x_diff(3) <- M_PI) x_diff(3) += 2.*M_PI;
     P_ = P_ + weights(i) * x_diff * x_diff.transpose();
   }
 }
