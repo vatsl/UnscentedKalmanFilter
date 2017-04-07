@@ -27,10 +27,10 @@ UKF::UKF() {
   P_ = MatrixXd(5, 5);
 
   // Process noise standard deviation longitudinal acceleration in m/s^2
-  std_a_ = 5;
+  std_a_ = 0.8;
 
   // Process noise standard deviation yaw acceleration in rad/s^2
-  std_yawdd_ = 0.9;
+  std_yawdd_ = 0.6;
 
   // Laser measurement noise standard deviation position1 in m
   std_laspx_ = 0.1;
@@ -71,7 +71,7 @@ UKF::UKF() {
 
   // Sigma point matrix
   Xsig_aug_ = MatrixXd(n_aug_, 2 * n_aug_ + 1);
-  Xsig_pred_ = MatrixXd(n_x_, 2 * n_aug_ + 1); 		// predicted (augmented one)
+  Xsig_pred_ = MatrixXd(n_x_, 2 * n_aug_ + 1);
 
   // Initial covariance matrix
   P_ = MatrixXd(n_x_, n_x_);
@@ -139,12 +139,6 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
    * Prediction
    */
   double dt = (meas_package.timestamp_ - previous_timestamp_)/1000000.0;
-
-  // Dividing large time steps into smaller prediction intervals helps to maintain numerical stability.
-  while (dt > 0.1){
-    Prediction(0.05);
-    dt -= 0.05;
-  }
 
   Prediction(dt);
   previous_timestamp_ = meas_package.timestamp_;
