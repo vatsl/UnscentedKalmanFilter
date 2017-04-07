@@ -7,3 +7,6 @@
 # build files
 build/
 cmake-build-debug/
+
+# output files
+output_files/

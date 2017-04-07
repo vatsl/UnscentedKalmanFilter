@@ -130,7 +130,7 @@ public:
   void UpdateRadar(MeasurementPackage meas_package);
 
   void PredictMeanAndCovariance();
-  void AugmentedSigmaPoints();
+  void GenerateAugmentedSigmaPoints();
   void PredictAugmentedSigmaPoints(double delta_t);
 };
 
