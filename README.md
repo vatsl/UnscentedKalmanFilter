@@ -6,7 +6,7 @@ Self-Driving Car Engineer Nanodegree Program
 ## RMSE Values
 
 * sample data 1 - **[0.0724284, 0.0781081, 0.57687, 0.568334]**
-* sample data 2 - **[0.191206, 0.189256, 0.402045, 0.523242]**
+* sample data 2 - **[0.161822, 0.17826, 0.222124, 0.290671]**
 
 ## Dependencies
 
